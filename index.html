@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Innenreinigung Checkliste</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #16a34a;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .subtitle {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* Fortschrittsbalken */
+        .progress-container {
+            background-color: var(--border);
+            border-radius: 8px;
+            height: 12px;
+            width: 100%;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background-color: var(--success);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            color: var(--primary);
+            margin-top: 24px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 6px;
+        }
+
+        .task-item {
+            background: #fff;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .task-item.checked {
+            background-color: #f0fdf4;
+            border-color: #bbf7d0;
+        }
+
+        .task-main {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .task-main input[type="checkbox"] {
+            margin-top: 3px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--success);
+        }
+
+        .task-title {
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .task-item.checked .task-title {
+            text-decoration: line-through;
+            color: var(--text-light);
+        }
+
+        /* Notizen-Feld */
+        .note-container {
+            margin-top: 8px;
+            margin-left: 30px;
+        }
+
+        .note-input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            background: #fafafa;
+            box-sizing: border-box;
+            resize: vertical;
+            min-height: 28px;
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+        }
+
+        /* Buttons */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .btn-summary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-summary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-reset {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #dc2626;
+        }
+
+        /* Modal für Zusammenfassung */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 24px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .modal-content h2 {
+            margin-top: 0;
+            font-size: 1.3rem;
+            color: var(--text);
+        }
+
+        .summary-item {
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .summary-item strong {
+            color: var(--primary);
+        }
+
+        .btn-close {
+            background-color: var(--text-light);
+            color: white;
+            width: 100%;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Innenreinigung Checkliste</h1>
+    <div class="subtitle">Dein Qualitäts-Standard für jedes Auto</div>
+
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">0 von 15 Schritten erledigt (0%)</div>
+
+    <!-- PHASE 1 -->
+    <h3>1. Vorbereitung & Bestandsaufnahme</h3>
+    <div class="task-item" data-id="1">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Fahrzeug prüfen (Vorschäden / Besonderheiten checken)</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="2">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Persönliche Gegenstände sichern / Müll einsammeln</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="3">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Fussmatten herausnehmen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <h3>2. Grobreinigung & Staubsaugen (Hinten nach Vorne)</h3>
+    <div class="task-item" data-id="4">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Kofferraum saugen (inkl. Seitenfächer/Mulde)</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="5">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Rücksitze & hinterer Fussraum saugen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="6">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Vordersitze & vorderer Fussraum saugen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="7">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Fussmatten reinigen (ausklopfen / schrubben)</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <h3>3. Feinarbeit & Oberflächen (Oben nach Unten)</h3>
+    <div class="task-item" data-id="8">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Himmel & Sonnenblenden auf Flecken prüfen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="9">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Cockpit & Lenkrad staubfrei machen (Pinsel + APC)</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="10">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Mittelkonsole & Ablagen reinigen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="11">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Türverkleidungen & Griffmulden auswischen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="12">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Türfälze / Einstiege abwischen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <h3>4. Scheiben & Feinschliff</h3>
+    <div class="task-item" data-id="13">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Scheiben von innen streifenfrei putzen</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+    <div class="task-item" data-id="14">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Kurzer Feinschliff-Sauger (heruntergefallener Staub) & Matten rein</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <h3>5. Endkontrolle</h3>
+    <div class="task-item" data-id="15">
+        <label class="task-main">
+            <input type="checkbox" onchange="updateProgress()">
+            <span class="task-title">Endkontrolle (Mit kritischem Kunden-Blick prüfen) & Geruchs-Check</span>
+        </label>
+        <div class="note-container"><textarea class="note-input" placeholder="Notiz hinzufügen..."></textarea></div>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn btn-summary" onclick="showSummary()">Zusammenfassung & Notizen</button>
+        <button class="btn btn-reset" onclick="resetChecklist()">Zurücksetzen</button>
+    </div>
+</div>
+
+<!-- Modal für die Zusammenfassung -->
+<div class="modal" id="summaryModal">
+    <div class="modal-content">
+        <h2>Protokoll & Notizen</h2>
+        <div id="summaryContent"></div>
+        <button class="btn btn-close" onclick="closeSummary()">Schliessen</button>
+    </div>
+</div>
+
+<script>
+    function updateProgress() {
+        const items = document.querySelectorAll('.task-item');
+        let checkedCount = 0;
+        const total = items.length;
+
+        items.forEach(item => {
+            const checkbox = item.querySelector('input[type="checkbox"]');
+            if (checkbox.checked) {
+                item.classList.add('checked');
+                checkedCount++;
+            } else {
+                item.classList.remove('checked');
+            }
+        });
+
+        const percentage = Math.round((checkedCount / total) * 100);
+        document.getElementById('progressBar').style.width = percentage + '%';
+        document.getElementById('progressText').innerText = `${checkedCount} von ${total} Schritten erledigt (${percentage}%)`;
+    }
+
+    function showSummary() {
+        const items = document.querySelectorAll('.task-item');
+        const summaryContainer = document.getElementById('summaryContent');
+        summaryContainer.innerHTML = '';
+
+        let hasNotesOrErrors = false;
+
+        items.forEach(item => {
+            const title = item.querySelector('.task-title').innerText;
+            const isChecked = item.querySelector('input[type="checkbox"]').checked;
+            const note = item.querySelector('.note-input').value.trim();
+
+            let statusIcon = isChecked ? '✅ Erledigt' : '❌ Offen';
+
+            if (note || !isChecked) {
+                hasNotesOrErrors = true;
+                const div = document.createElement('div');
+                div.className = 'summary-item';
+                div.innerHTML = `<strong>${title}</strong><br>Status: ${statusIcon} ${note ? '<br>📝 Notiz: <em>' + note + '</em>' : ''}`;
+                summaryContainer.appendChild(div);
+            }
+        });
+
+        if (!hasNotesOrErrors) {
+            summaryContainer.innerHTML = '<p>Alles erledigt und keine speziellen Notizen hinterlegt!</p>';
+        }
+
+        document.getElementById('summaryModal').style.display = 'flex';
+    }
+
+    function closeSummary() {
+        document.getElementById('summaryModal').style.display = 'none';
+    }
+
+    function resetChecklist() {
+        if (confirm("Möchtest du alle Häkchen und Notizen zurücksetzen?")) {
+            const items = document.querySelectorAll('.task-item');
+            items.forEach(item => {
+                item.querySelector('input[type="checkbox"]').checked = false;
+                item.querySelector('.note-input').value = '';
+                item.classList.remove('checked');
+            });
+            updateProgress();
+        }
+    }
+</script>
+
+</body>
+</html>
